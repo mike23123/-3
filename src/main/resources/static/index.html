@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>通讯录</title>
+</head>
+<body>
+<h1>个人通讯录</h1>
+
+<h2>添加联系人</h2>
+<form id="addContactForm">
+    姓名：<input type="text" id="name"><br>
+    地址：<input type="text" id="address"><br>
+    电话：<input type="text" id="phone"><br>
+    <button type="button" onclick="addContact()">Add Contact</button>
+</form>
+
+<h2>所有联系人</h2>
+<ul id="contactsList"></ul>
+
+<script>
+    function addContact() {
+        const name = document.getElementById('name').value;
+        const address = document.getElementById('address').value;
+        const phone = document.getElementById('phone').value;
+
+        const contact = {name, address, phone};
+
+        fetch('/api/contacts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contact),
+        })
+            .then(response => response.text())
+            .then(data => {
+                alert(data);
+                loadContacts();
+            });
+    }
+
+    function loadContacts() {
+        fetch('/api/contacts')
+            .then(response => response.json())
+            .then(contacts => {
+                const contactsList = document.getElementById('contactsList');
+                contactsList.innerHTML = '';
+                contacts.forEach(contact => {
+                    const li = document.createElement('li');
+                    li.textContent = `${contact.name}: ${contact.address}, ${contact.phone}`;
+                    contactsList.appendChild(li);
+                });
+            });
+    }
+
+    // Load contacts on page load
+    window.onload = loadContacts;
+</script>
+</body>
+</html>
